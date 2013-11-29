@@ -49,9 +49,11 @@ module EnergyMarket
       self
     end
 
+
     def set_all_to(value)
       @v = @v.map{|e| e=value}
     end
+
 
     # get the sum of the values
     def sum(options = {})
