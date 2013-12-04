@@ -10,7 +10,6 @@ module EnergyMarket
 
 
     def initialize(start_time=nil, options={})
-    # def initialize(start_time=nil, zone="Rome")
       options = {:zone => get_current_time_zone, :unit => :hour}.merge(options)
       Time.zone = options[:zone]
       @start_time = floor_start_time(read_start_time(start_time), options[:unit])
@@ -59,20 +58,14 @@ module EnergyMarket
     def sum(options = {})
       if options[:values]
         case options[:values]
-        when :positive
+        when :positive, :not_negative
           @v.inject(0.0){|total, n| total + (n>0.0 ? n : 0.0) }
-        when :negative
+        when :negative, :not_positive
           @v.inject(0.0){|total, n| total + (n<0.0 ? n : 0.0) }
-        when :not_positive
-          @v.inject(0.0){|total, n| total + (n<=0.0 ? n : 0.0) }
-        when :not_negative
-          @v.inject(0.0){|total, n| total + (n>=0.0 ? n : 0.0) }
-        when :not_zero
-          sum_all_elements
         when :zero
           0.0
-        when :all
-          sum_all_elements
+        when :all, :not_zero
+          sum_all_elements  
         else
           raise ArgumentError, "Option not recognized"
         end
@@ -107,38 +100,32 @@ module EnergyMarket
         count_all_elements
       end
     end
-    alias :size :count
+    # alias :size :count
 
 
     # Return the mean of values
     def mean(options = {})
-      c = count(options) # if count is zero a NaN will be returned
-      # raise ZeroDivisionError if c.zero?
+      c = count(options)
+      return nil if c.zero? # if the array is empty will be returned nil
       sum(options) / c
     end
 
 
     def minimum_value
-      min=@v.first
-      @v.each{|v| min=v if v<min }
-      min
+      @v.compact.min
     rescue
-      # if the first value or all values are nil
       nil
     end
 
     def maximum_value
-      max=@v.first
-      @v.each{|v| max=v if v>max }
-      max
+      @v.compact.max
     rescue
-      # if the first value or all values are nil
       nil
     end
 
 
     def round!(ndigit=3)
-      @v.collect!{|v| v.round(ndigit)}
+      @v.collect!{|e| e.nil? ? nil : e.round(ndigit)}
     end
 
 
@@ -184,39 +171,49 @@ module EnergyMarket
 
 
     def end_time
-      return nil if @v.empty?
+      return nil if empty?
+      # return @start_time if @v.empty?
       @start_time + (@v.size-1).hours
-      # case @unit
-      # when '15minutes'
-      #   @start_time + ((@v.size-1)*15).minutes
-      # when 'hour'
-      #   @start_time + (@v.size-1).hours
-      # when 'day'
-      #   @start_time + (@v.size-1).days
-      # when 'month'
-      #   @start_time + (@v.size-1).months
-      # when 'year'
-      #   @start_time + (@v.size-1).years
-      # end
+    end
+
+    def empty?
+      @v.empty?
     end
 
     def aligned_with?(v)
       self.start_time==v.start_time && @v.size==v.size
     end
   
+    def align_with(v)
+      s = [start_time, v.start_time].max
+      if end_time && v.end_time
+        e = [end_time, v.end_time].min
+        if s <= e
+          @v = @v[((s-start_time)/3600).to_i, 1+((e-s)/3600).to_i]
+        else
+          @v = []
+        end
+      else
+        @v = []
+      end
+      @start_time = s       
+    end
+
+
     # intersection
-    def align_with(vector_2)
+    def align_with_old(vector_2)
       s1, s2 = @start_time, vector_2.start_time
       return nil if s1==s2 && @v.size==vector_2.size
       e1, e2 = self.end_time, vector_2.end_time
 
-      hs = ((s2-s1)/3600).to_i
-      ks = hs>0 ? hs : 0
-      he = ((e2-e1)/3600).to_i
-      ke = he<0 ? he : 0
-      ke -= 1
-
-      @v = @v[ks..ke]
+      if e1 && e2 # values are not empties
+        ks = [0, ((s2-s1)/3600).to_i].max
+        ke = [0, ((e2-e1)/3600).to_i].min
+        puts "----> ks: #{ks} - ke: #{ke}"
+        @v = @v[ks..(ke-1)]
+      else
+        @v = []
+      end
       @start_time = (s1>s2 ? s1 : s2)
     end
 
@@ -230,13 +227,8 @@ module EnergyMarket
     end
 
     def print_values
-      a = []
-      start_time = @start_time.clone
-      @v.each do |v|
-        a << "#{start_time.strftime('%Y-%m-%d %H:%M %a')}\t#{v}"
-        start_time+=1.hour
-      end
-      a.join("\n")
+      start_time = @start_time - 1.hour
+      @v.collect{|v| "#{(start_time+=1.hour).strftime('%Y-%m-%d %H:%M %a')}\t#{v}" }.join("\n")
     end
 
     def until_the_end_of_the_year(fill_value=0.0)
@@ -254,6 +246,7 @@ module EnergyMarket
       else
         c.align_with(vec)
       end
+
       c.size.times do |i|
         c.set_value(i, c.value(i)+(default_value || vec.value(i) || 0.0))
       end
@@ -406,6 +399,7 @@ module EnergyMarket
         "Rome"
       end
     end
+
   end
 
 end
