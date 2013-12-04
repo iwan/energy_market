@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
 
   spec.add_dependency('activesupport', '~> 3.2')
+  spec.add_dependency('tzinfo', '~> 1.1.0')
 end
