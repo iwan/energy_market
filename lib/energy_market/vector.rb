@@ -285,12 +285,12 @@ module EnergyMarket
       return self if vec.nil?
       c = self.clone
       if vec.is_a? Numeric # Fixnum or Float...
-        default_value = vec
+        default_value = vec.to_f
       else
         c.align_with(vec)
       end
       c.size.times do |i|
-        c.set_value(i, c.value(i).to_f/(default_value || vec.value(i) || 1.0))
+        c.set_value(i, c.value(i).to_f/(default_value || vec.value(i).to_f || 1.0))
       end
       c
     end
@@ -332,8 +332,9 @@ module EnergyMarket
     def first_values(number)
       @v[0,number]
     end
-    def set_value(index, v)
-      @v[index]=v
+
+    def set_value(index, new_value)
+      @v[index]=new_value
     end
 
 

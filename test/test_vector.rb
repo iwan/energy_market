@@ -388,8 +388,6 @@ class TestVector < Test::Unit::TestCase
     v1 = EnergyMarket::Vector.new("2013-01-01").data([2, 3, 5, 7, 11])
     v2 = EnergyMarket::Vector.new("2013-01-02").data([2, 3, 5, 7, 11])
     v1.align_with(v2)
-    puts "---- #{v1.start_time}"
-    puts "---- #{v1.v.inspect}"
 
 
     v1 = EnergyMarket::Vector.new("2013-01-01 02:00")
@@ -427,6 +425,15 @@ class TestVector < Test::Unit::TestCase
     assert_equal(8760, v1.sum)
   end
 
+
+  def operation_w_scalar(operation, k)
+    a = [2, 3, 5, 7, 11]
+    v = EnergyMarket::Vector.new("2013-01-01").data(a)
+    r = v.send(operation, k)
+    assert_equal(a.collect{|e| e.to_f.send(operation, k)}, r.v)
+  end
+
+
   def test_plus
     a1 = [2, 3, 5, 7, 11]
     v1 = EnergyMarket::Vector.new("2013-01-01").data(a1)
@@ -435,6 +442,9 @@ class TestVector < Test::Unit::TestCase
 
     r12 = v1+v2
     assert_equal([5+2, 7+3, 11+5], r12.v)
+
+    operation_w_scalar(:+, 5)
+    operation_w_scalar(:+, 5.8)
 
     v3 = EnergyMarket::Vector.new("2013-01-01")
     r13 = v1+v3
@@ -450,6 +460,7 @@ class TestVector < Test::Unit::TestCase
     assert_equal([], r12.v)
   end
 
+
   def test_minus
     a1 = [2, 3, 5, 7, 11]
     v1 = EnergyMarket::Vector.new("2013-01-01").data(a1)
@@ -458,6 +469,10 @@ class TestVector < Test::Unit::TestCase
 
     r12 = v1-v2
     assert_equal([5-2, 7-3, 11-5], r12.v)
+
+    operation_w_scalar(:-, 5)
+    operation_w_scalar(:-, 5.8)
+
 
     v3 = EnergyMarket::Vector.new("2013-01-01")
     r13 = v1-v3
@@ -470,6 +485,91 @@ class TestVector < Test::Unit::TestCase
     v2 = EnergyMarket::Vector.new("2013-01-02").data([2, 3, 5, 7, 11])
     r12 = v1+v2
     assert_equal([], r12.v)
- 
+  end
+
+
+  def test_multiply
+    a1 = [2, 3, 5, 7, 11]
+    v1 = EnergyMarket::Vector.new("2013-01-01").data(a1)
+    a2 = [2, 3, 5, 7, 11]
+    v2 = EnergyMarket::Vector.new("2013-01-01 02:00").data(a2)
+
+    r12 = v1*v2
+    assert_equal([5*2, 7*3, 11*5], r12.v)
+
+    operation_w_scalar(:*, 5)
+    operation_w_scalar(:*, 5.8)
+
+    v3 = EnergyMarket::Vector.new("2013-01-01")
+    r13 = v1*v3
+    assert_equal([], r13.v)
+
+    r31 = v3*v1
+    assert_equal([], r31.v) 
+
+    v1 = EnergyMarket::Vector.new("2013-01-01").data([2, 3, 5, 7, 11])
+    v2 = EnergyMarket::Vector.new("2013-01-02").data([2, 3, 5, 7, 11])
+    r12 = v1*v2
+    assert_equal([], r12.v)
+  end
+
+
+  def test_divided_by
+    a1 = [2, 3, 5, 7, 11]
+    v1 = EnergyMarket::Vector.new("2013-01-01").data(a1)
+    a2 = [2, 3, 5, 7, 11]
+    v2 = EnergyMarket::Vector.new("2013-01-01 02:00").data(a2)
+
+    r12 = v1/v2
+    assert_equal([5.0/2, 7.0/3, 11.0/5], r12.v)
+
+    operation_w_scalar(:/, 5)
+    operation_w_scalar(:/, 5.8)
+
+    v3 = EnergyMarket::Vector.new("2013-01-01")
+    r13 = v1/v3
+    assert_equal([], r13.v)
+
+    r31 = v3/v1
+    assert_equal([], r31.v) 
+
+    v1 = EnergyMarket::Vector.new("2013-01-01").data([2, 3, 5, 7, 11])
+    v2 = EnergyMarket::Vector.new("2013-01-02").data([2, 3, 5, 7, 11])
+    r12 = v1/v2
+    assert_equal([], r12.v)
+  end
+
+  def test_value
+    a1 = [2, 3, 5, 7, 11]
+    v1 = EnergyMarket::Vector.new("2013-01-01").data(a1)
+    a1.each_with_index do |e, i|
+      assert_equal(e, v1.value(i))
+    end
+
+    assert_nil(EnergyMarket::Vector.new("2013-01-01").value(0))
+  end
+
+  def test_first_values
+    a1 = [2, 3, 5, 7, 11]
+    v1 = EnergyMarket::Vector.new("2013-01-01").data(a1)
+    a1.size.times do |i|
+      assert_equal(a1[0, i], v1.first_values(i))
+    end
+
+    assert_equal([], EnergyMarket::Vector.new("2013-01-01").first_values(2))
+  end
+
+  def test_set_value
+    a1 = [2, 3, 5, 7, 11]
+    v1 = EnergyMarket::Vector.new("2013-01-01").data(a1)
+    v1.set_value(0, 1000)
+    assert_equal(1000, v1.v[0])
+
+    v2 = EnergyMarket::Vector.new("2013-01-01")
+    v2.set_value(2, 1000)
+    assert_equal(1000, v2.v[2])
+    assert_equal(1000, v2.value(2))
+    assert_nil(v2.value(0))
+    assert_nil(v2.value(1))
   end
 end
