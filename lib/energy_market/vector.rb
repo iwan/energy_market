@@ -176,6 +176,10 @@ module EnergyMarket
       @v.empty?
     end
 
+    def empty_data
+      @v = []
+    end
+
     def aligned_with?(v)
       self.start_time==v.start_time && @v.size==v.size
     end
@@ -183,9 +187,9 @@ module EnergyMarket
     def align_with(v)
       s = [start_time, v.start_time].max
       if end_time.nil? || v.end_time.nil? || s>(e = [end_time, v.end_time].min)
-        @v = []
+        empty_data
       else
-        @v = @v[((s-start_time)/3600).to_i, 1+((e-s)/3600).to_i]
+        data_ary(((s-start_time)/3600).to_i, 1+((e-s)/3600).to_i)
       end
       @start_time = s       
     end
@@ -251,6 +255,10 @@ module EnergyMarket
 
 
     private
+
+    def data_ary(start, length)
+      @v = @v[start, length]
+    end
 
     def min_max(vec, method)
       return self if vec.nil?
