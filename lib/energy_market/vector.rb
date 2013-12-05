@@ -212,90 +212,29 @@ module EnergyMarket
     end
 
     def +(vec)
-      return self if vec.nil?
-      c = self.clone
-      if vec.is_a? Numeric # Fixnum or Float...
-        default_value = vec
-      else
-        c.align_with(vec)
-      end
-
-      c.size.times do |i|
-        c.set_value(i, c.value(i)+(default_value || vec.value(i) || 0.0))
-      end
-      c
+      oper(vec, :+)
     end
 
     def -(vec)
-      return self if vec.nil?
-      c = self.clone
-      if vec.is_a? Numeric # Fixnum or Float...
-        default_value = vec
-      else
-        c.align_with(vec)
-      end
-      c.size.times do |i|
-        c.set_value(i, c.value(i)-(default_value || vec.value(i) || 0.0))
-      end
-      c
+      oper(vec, :-)
     end
 
     def *(vec)
-      return self if vec.nil?
-      c = self.clone
-      if vec.is_a? Numeric # Fixnum or Float...
-        default_value = vec
-      else
-        c.align_with(vec)
-      end
-      c.size.times do |i|
-        c.set_value(i, c.value(i)*(default_value || vec.value(i) || 1.0))
-      end
-      c
+      oper(vec, :*)
     end
 
     def /(vec)
-      return self if vec.nil?
-      c = self.clone
-      if vec.is_a? Numeric # Fixnum or Float...
-        default_value = vec.to_f
-      else
-        c.align_with(vec)
-      end
-      c.size.times do |i|
-        c.set_value(i, c.value(i).to_f/(default_value || vec.value(i).to_f || 1.0))
-      end
-      c
+      oper(vec, :/)
     end
 
     # v1.max(v2) return a new obj where which element is the max between the elements of v1 and v2
     # v2 can also be of type Numeric
     def max(vec=0.0)
-      return self if vec.nil?
-      c = self.clone
-      if vec.is_a? Numeric # Fixnum or Float...
-        default_value = vec
-      else
-        c.align_with(vec)
-      end
-      c.size.times do |i|
-        c.set_value(i, max_among(c.value(i),  default_value || vec.value(i)))
-      end
-      c
+      min_max(vec, :max_among)
     end
 
     def min(vec=0.0)
-      return self if vec.nil?
-      c = self.clone
-      if vec.is_a? Numeric # Fixnum or Float...
-        default_value = vec
-      else
-        c.align_with(vec)
-      end
-      c.size.times do |i|
-        c.set_value(i, min_among(c.value(i),  default_value || vec.value(i)))
-      end
-      c
+      min_max(vec, :min_among)
     end
 
     def value(index)
@@ -312,6 +251,37 @@ module EnergyMarket
 
 
     private
+
+    def min_max(vec, method)
+      return self if vec.nil?
+      c = self.clone
+      if vec.is_a? Numeric # Fixnum or Float...
+        default_value = vec
+      else
+        c.align_with(vec)
+      end
+      c.size.times do |i|
+        c.set_value(i, self.send(method, c.value(i),  default_value || vec.value(i)))
+      end
+      c
+    end
+
+
+    def oper(vec, op)
+      return self if vec.nil?
+      c = self.clone
+      if vec.is_a? Numeric # Fixnum or Float...
+        default_value = vec
+      else
+        c.align_with(vec)
+      end
+
+      c.size.times do |i|
+        c.set_value(i, c.value(i).to_f.send(op, (default_value || vec.value(i) || 0.0)))
+      end
+      c
+    end
+
 
     def floor_start_time(t, unit=:hour)
       case unit
