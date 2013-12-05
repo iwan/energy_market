@@ -182,35 +182,12 @@ module EnergyMarket
   
     def align_with(v)
       s = [start_time, v.start_time].max
-      if end_time && v.end_time
-        e = [end_time, v.end_time].min
-        if s <= e
-          @v = @v[((s-start_time)/3600).to_i, 1+((e-s)/3600).to_i]
-        else
-          @v = []
-        end
-      else
+      if end_time.nil? || v.end_time.nil? || s>(e = [end_time, v.end_time].min)
         @v = []
+      else
+        @v = @v[((s-start_time)/3600).to_i, 1+((e-s)/3600).to_i]
       end
       @start_time = s       
-    end
-
-
-    # intersection
-    def align_with_old(vector_2)
-      s1, s2 = @start_time, vector_2.start_time
-      return nil if s1==s2 && @v.size==vector_2.size
-      e1, e2 = self.end_time, vector_2.end_time
-
-      if e1 && e2 # values are not empties
-        ks = [0, ((s2-s1)/3600).to_i].max
-        ke = [0, ((e2-e1)/3600).to_i].min
-        puts "----> ks: #{ks} - ke: #{ke}"
-        @v = @v[ks..(ke-1)]
-      else
-        @v = []
-      end
-      @start_time = (s1>s2 ? s1 : s2)
     end
 
 
