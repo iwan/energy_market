@@ -77,30 +77,26 @@ module EnergyMarket
 
     # Count the values
     def count(options = {})
-      if options[:values]
-        case options[:values]
-        when :positive
-          @v.inject(0){|total, n| total + (n>0.0 ? 1 : 0) }
-        when :negative
-          @v.inject(0){|total, n| total + (n<0.0 ? 1 : 0) }
-        when :not_positive
-          @v.inject(0){|total, n| total + (n<=0.0 ? 1 : 0) }
-        when :not_negative
-          @v.inject(0){|total, n| total + (n>=0.0 ? 1 : 0) }
-        when :not_zero
-          @v.inject(0.0){|total, n| total + (n!=0.0 ? 1 : 0) }
-        when :zero
-          @v.inject(0){|total, n| total + (n==0.0 ? 1 : 0) }
-        when :all
-          count_all_elements
-        else
-          raise ArgumentError, "Option not recognized"
-        end
-      else
+      return count_all_elements if !options[:values]
+      case options[:values]
+      when :positive
+        @v.count{|e| e>0.0}
+      when :negative
+        @v.count{|e| e<0.0}
+      when :not_positive
+        @v.count{|e| e<=0.0}
+      when :not_negative
+        @v.count{|e| e>=0.0}
+      when :not_zero
+        @v.count{|e| e!=0.0}
+      when :zero
+        @v.count{|e| e==0.0}
+      when :all
         count_all_elements
+      else
+        raise ArgumentError, "Option not recognized"
       end
     end
-    # alias :size :count
 
 
     # Return the mean of values
