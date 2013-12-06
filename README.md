@@ -1,5 +1,6 @@
 # EnergyMarket
 
+[![Build Status](https://travis-ci.org/iwan/energy_market.png)](https://travis-ci.org/iwan/energy_market)
 [![Code Climate](https://codeclimate.com/repos/52a049e813d637419e007ea3/badges/4494ed8a31e52b80f8d7/gpa.png)](https://codeclimate.com/repos/52a049e813d637419e007ea3/feed)
 
 TODO: Write a gem description
