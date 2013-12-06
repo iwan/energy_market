@@ -27,9 +27,6 @@ class TestVector < Test::Unit::TestCase
     v2 = EnergyMarket::Vector.new("2013", @opts)
     assert_equal(v1.start_time, v2.start_time)
 
-    v2 = EnergyMarket::Vector.new("2013")
-    assert_equal(v1.start_time, v2.start_time)
-
     v2 = EnergyMarket::Vector.new("2013", :zone => "London")
     assert_not_equal(v2.start_time, v1.start_time)
 
@@ -125,7 +122,7 @@ class TestVector < Test::Unit::TestCase
     v = 4.5
     v1 = EnergyMarket::Vector.new("2013-05-01", @opts)
     v1.data(v, :year) # set values to v to the end of year
-    n = (Time.parse("2014-01-01") - Time.parse("2013-05-01"))/3600 
+    n = (Time.zone.parse("2014-01-01") - Time.zone.parse("2013-05-01"))/3600 
     assert_equal(n.to_i, v1.v.size)
     v1.v.each do |e|
       assert_equal(v, e)
