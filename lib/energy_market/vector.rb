@@ -13,7 +13,7 @@ module EnergyMarket
       options = {:zone => get_current_time_zone, :unit => :hour}.merge(options)
       Time.zone = options[:zone]
       @start_time = floor_start_time(read_start_time(start_time), options[:unit])
-      @v = ValuesArray.new
+      empty_data
     end
 
 
@@ -28,7 +28,7 @@ module EnergyMarket
     def data(data, unit=:hour)
       unit = unit.to_sym
       data = [data] unless data.is_a? Array
-      @v = ValuesArray.new
+      empty_data
       validate_unit unit
       start_time = @start_time.clone
 
@@ -177,7 +177,7 @@ module EnergyMarket
     end
 
     def empty_data
-      @v = []
+      @v = ValuesArray.new
     end
 
     def aligned_with?(v)
