@@ -17,10 +17,10 @@ module MyUtil
   end
 end
 
-include MyUtil
+# include MyUtil
 
-puts max_among(3.4, 3, 2, 5.8)
-puts max_among()
-puts max_among nil
+# puts max_among(3.4, 3, 2, 5.8)
+# puts max_among()
+# puts max_among nil
 
-puts max_among([3.4, 3, 2, 5.8])
+# puts max_among([3.4, 3, 2, 5.8])
