@@ -569,4 +569,11 @@ class TestVector < Test::Unit::TestCase
     assert_nil(v2.value(0))
     assert_nil(v2.value(1))
   end
+
+  def test_min_max
+    v1 = EnergyMarket::Vector.new("2013").data([1,2  ,3,4,5,6])
+    v2 = EnergyMarket::Vector.new("2013").data([4,0.5,3,9,0,7])
+    assert_equal([1,0.5,3,4,0,6], v1.min(v2).v)
+    assert_equal([4,2,3,9,5,7], v1.max(v2).v)
+  end
 end

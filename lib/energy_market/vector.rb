@@ -3,8 +3,10 @@ require 'active_support/core_ext/time/calculations'
 require 'active_support/core_ext/numeric/time'
 
 module EnergyMarket
-  
+
   class Vector
+    include EnergyMarket::MyUtil
+
     attr_reader :start_time, :v, :step
     @@valid_units = [:hour, :day, :month, :year]
 
