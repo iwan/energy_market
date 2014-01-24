@@ -10,6 +10,23 @@ class TestVector < Test::Unit::TestCase
     @array = [3, 6, 7, -34, 5.5, 0, 8]
   end
 
+  def test_zero_vector
+    a = [2, 3, 5, 7, 11]
+
+    v1 = EnergyMarket::Vector.new
+    v2 = EnergyMarket::Vector.new("2013-01-01").data(a)
+    v12 = v1+v2
+    assert_equal(v2.start_time, v12.start_time)
+    assert_equal(a, v12.v)
+
+    v1 = EnergyMarket::Vector.new
+    v2 = EnergyMarket::Vector.new("2013-01-01").data(a)
+    v12 = v1*v2
+    assert_equal(v2.start_time, v12.start_time)
+    assert_equal(a, v12.v)
+
+  end
+
   def test_initialize_start_time
     v1 = EnergyMarket::Vector.new("2013-01-01 00:00:00", @opts)
     v2 = EnergyMarket::Vector.new("2013-01-01 00:00", @opts)
@@ -32,8 +49,8 @@ class TestVector < Test::Unit::TestCase
 
     Time.zone = @zone
     v1 = EnergyMarket::Vector.new
-    v2 = EnergyMarket::Vector.new(Time.zone.now.strftime("%Y-%m-%d %H"))
-    assert_equal(v1.start_time, v2.start_time)
+    # v2 = EnergyMarket::Vector.new(Time.zone.now.strftime("%Y-%m-%d %H"))
+    assert_equal(nil, v1.start_time)
 
     v1 = EnergyMarket::Vector.new(Time.now)
     v2 = EnergyMarket::Vector.new(Time.zone.now)

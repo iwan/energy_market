@@ -21,7 +21,7 @@ module EnergyMarket
 
     # Clone the current object
     def clone
-      Vector.new(@start_time).data(@v.clone)
+      @v.nil? ? Vector.new(@start_time) : Vector.new(@start_time).data(@v.clone)
     end
 
 
@@ -32,7 +32,7 @@ module EnergyMarket
       data = [data] unless data.is_a? Array
       empty_data
       validate_unit unit
-      start_time = @start_time.clone
+      start_time = (@start_time.nil? ? nil : @start_time.clone)
 
       # the values are always stored as hour values
       if unit==:hour
@@ -153,7 +153,6 @@ module EnergyMarket
           raise ArgumentError, "Option not recognized"
         end
       else
-        # return [hour_numbers, @v]
         values = @v.clone
       end
       hn = Array.new(@v.size, @start_time)
@@ -170,16 +169,15 @@ module EnergyMarket
 
     def end_time
       return nil if empty?
-      # return @start_time if @v.empty?
       @start_time + (@v.size-1).hours
     end
 
     def empty?
-      @v.empty?
+      @v.nil? || @v.empty?
     end
 
     def empty_data
-      @v = ValuesArray.new
+      @v = @start_time.nil? ? nil : ValuesArray.new
     end
 
     def aligned_with?(v)
@@ -187,6 +185,7 @@ module EnergyMarket
     end
   
     def align_with(v)
+      @start_time = v.start_time if @start_time.nil? # ====
       s = [start_time, v.start_time].max
       if end_time.nil? || v.end_time.nil? || s>(e = [end_time, v.end_time].min)
         empty_data
@@ -279,13 +278,15 @@ module EnergyMarket
 
     def oper(vec, op)
       return self if vec.nil?
+
       c = self.clone
       if vec.is_a? Numeric # Fixnum or Float...
         default_value = vec
       else
         c.align_with(vec)
       end
-
+      
+      c.data(Array.new(vec.size){[:+, :-].include?(op) ? 0.0 : 1.0}) if @v.nil?
       c.size.times do |i|
         c.set_value(i, c.value(i).to_f.send(op, (default_value || vec.value(i) || 0.0)))
       end
@@ -294,6 +295,7 @@ module EnergyMarket
 
 
     def floor_start_time(t, unit=:hour)
+      return nil if t.nil?
       case unit
       # when :'15minutes'
       #   t = t - t.sec - (60 * (t.min % 15)) # floor to hour
@@ -312,7 +314,7 @@ module EnergyMarket
 
 
     def read_start_time(start_time)
-      start_time = Time.zone.now if start_time.nil?
+      # start_time = Time.zone.now if start_time.nil? # ====
       if start_time.is_a?(String)
         start_time.gsub!("/", "-")
         begin
