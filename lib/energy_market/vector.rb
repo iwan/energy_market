@@ -12,8 +12,9 @@ module EnergyMarket
 
 
     def initialize(start_time=nil, options={})
-      options = {:zone => get_current_time_zone, :unit => :hour}.merge(options)
-      Time.zone = options[:zone]
+      options = {:unit => :hour}.merge(options)
+      Time.zone = options[:zone] if options[:zone]
+      
       @start_time = floor_start_time(read_start_time(start_time), options[:unit])
       empty_data
     end
@@ -347,16 +348,6 @@ module EnergyMarket
     def validate_unit(unit)
       raise ArgumentError, "Time unit is not valid" if !@@valid_units.include? unit
     end
-
-    def get_current_time_zone
-      begin
-        Time.now.getlocal.zone
-        # Time.now.strftime("%Z")        
-      rescue Exception => e
-        "Rome"
-      end
-    end
-
   end
 
 end

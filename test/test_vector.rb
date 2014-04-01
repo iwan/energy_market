@@ -5,8 +5,7 @@ require 'time'
 class TestVector < Test::Unit::TestCase
   
   def setup
-    @zone = "Rome"
-    @opts = {:zone => @zone}
+    Time.zone = "Rome"
     @array = [3, 6, 7, -34, 5.5, 0, 8]
   end
 
@@ -28,26 +27,27 @@ class TestVector < Test::Unit::TestCase
   end
 
   def test_initialize_start_time
-    v1 = EnergyMarket::Vector.new("2013-01-01 00:00:00", @opts)
-    v2 = EnergyMarket::Vector.new("2013-01-01 00:00", @opts)
+    v1 = EnergyMarket::Vector.new("2013-01-01 00:00:00")
+    v2 = EnergyMarket::Vector.new("2013-01-01 00:00")
     assert_equal(v1.start_time, v2.start_time)
 
-    v2 = EnergyMarket::Vector.new("2013-01-01 00", @opts)
+    v2 = EnergyMarket::Vector.new("2013-01-01 00")
     assert_equal(v1.start_time, v2.start_time)
 
-    v2 = EnergyMarket::Vector.new("2013-01-01", @opts)
+    v2 = EnergyMarket::Vector.new("2013-01-01")
     assert_equal(v1.start_time, v2.start_time)
 
-    v2 = EnergyMarket::Vector.new("2013-01", @opts)
+    v2 = EnergyMarket::Vector.new("2013-01")
     assert_equal(v1.start_time, v2.start_time)
 
-    v2 = EnergyMarket::Vector.new("2013", @opts)
+    v2 = EnergyMarket::Vector.new("2013")
     assert_equal(v1.start_time, v2.start_time)
 
-    v2 = EnergyMarket::Vector.new("2013", :zone => "London")
+    Time.zone = "London"
+    v2 = EnergyMarket::Vector.new("2013")
     assert_not_equal(v2.start_time, v1.start_time)
 
-    Time.zone = @zone
+    Time.zone = "Rome"
     v1 = EnergyMarket::Vector.new
     # v2 = EnergyMarket::Vector.new(Time.zone.now.strftime("%Y-%m-%d %H"))
     assert_equal(nil, v1.start_time)
@@ -60,23 +60,23 @@ class TestVector < Test::Unit::TestCase
 
 
   def test_initialize_start_time_flooring
-    v1 = EnergyMarket::Vector.new("2013-05-03 02", @opts)
-    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", @opts)
+    v1 = EnergyMarket::Vector.new("2013-05-03 02")
+    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18")
     assert_equal(v1.start_time, v2.start_time)
 
-    v2 = EnergyMarket::Vector.new("2013-05-03 02:53", @opts)
+    v2 = EnergyMarket::Vector.new("2013-05-03 02:53")
     assert_equal(v1.start_time, v2.start_time)
 
-    v1 = EnergyMarket::Vector.new("2013-05-03", @opts)
-    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", @opts.merge(unit: :day))
+    v1 = EnergyMarket::Vector.new("2013-05-03")
+    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", {unit: :day})
     assert_equal(v1.start_time, v2.start_time)
 
-    v1 = EnergyMarket::Vector.new("2013-05-01", @opts)
-    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", @opts.merge(unit: :month))
+    v1 = EnergyMarket::Vector.new("2013-05-01")
+    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", {unit: :month})
     assert_equal(v1.start_time, v2.start_time)
 
-    v1 = EnergyMarket::Vector.new("2013-01-01", @opts)
-    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", @opts.merge(unit: :year))
+    v1 = EnergyMarket::Vector.new("2013-01-01")
+    v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", {unit: :year})
     assert_equal(v1.start_time, v2.start_time)
   end
 
@@ -88,6 +88,7 @@ class TestVector < Test::Unit::TestCase
     assert_equal(v1.start_time, v2.start_time)
     v2 = EnergyMarket::Vector.new("2013-05-03 04:53:18", :zone => "Moscow")
     assert_equal(v1.start_time, v2.start_time)
+    puts Time.zone
   end
 
 
@@ -106,7 +107,7 @@ class TestVector < Test::Unit::TestCase
 
   def test_dataize
     arr = [3, 5, 7]
-    v1 = EnergyMarket::Vector.new("2013-05-01", @opts)
+    v1 = EnergyMarket::Vector.new("2013-05-01")
     v1.data(arr, :day)
     i = 0
     arr.each do |v|
@@ -117,7 +118,7 @@ class TestVector < Test::Unit::TestCase
     end
 
     arr = [3, 5, 7]
-    v1 = EnergyMarket::Vector.new("2013-04-01", @opts)
+    v1 = EnergyMarket::Vector.new("2013-04-01")
     v1.data(arr, :month)
     i = 0
     month_days = [30, 31, 30]
@@ -129,7 +130,7 @@ class TestVector < Test::Unit::TestCase
     end
 
     v = 3.5
-    v1 = EnergyMarket::Vector.new("2013-01-01", @opts)
+    v1 = EnergyMarket::Vector.new("2013-01-01")
     v1.data(v, :year)
     assert_equal(8760, v1.v.size)
     v1.v.each do |e|
@@ -137,7 +138,7 @@ class TestVector < Test::Unit::TestCase
     end
 
     v = 4.5
-    v1 = EnergyMarket::Vector.new("2013-05-01", @opts)
+    v1 = EnergyMarket::Vector.new("2013-05-01")
     v1.data(v, :year) # set values to v to the end of year
     n = (Time.zone.parse("2014-01-01") - Time.zone.parse("2013-05-01"))/3600 
     assert_equal(n.to_i, v1.v.size)
@@ -150,7 +151,7 @@ class TestVector < Test::Unit::TestCase
   def test_set_all_to
     v = 13.2
     arr = [3, 5, 7]
-    v1 = EnergyMarket::Vector.new("2013-05-01", @opts)
+    v1 = EnergyMarket::Vector.new("2013-05-01")
     v1.data(arr, :day)
     v1.set_all_to(v)
     assert_equal(24*arr.size, v1.size)
