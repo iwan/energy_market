@@ -350,7 +350,8 @@ module EnergyMarket
 
     def get_current_time_zone
       begin
-        Time.now.strftime("%Z")        
+        Time.now.getlocal.zone
+        # Time.now.strftime("%Z")        
       rescue Exception => e
         "Rome"
       end
