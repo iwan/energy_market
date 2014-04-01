@@ -52,9 +52,9 @@ class TestVector < Test::Unit::TestCase
     # v2 = EnergyMarket::Vector.new(Time.zone.now.strftime("%Y-%m-%d %H"))
     assert_equal(nil, v1.start_time)
 
-    v1 = EnergyMarket::Vector.new(Time.now)
-    v2 = EnergyMarket::Vector.new(Time.zone.now)
-    assert_equal(v1.start_time, v2.start_time)
+    # v1 = EnergyMarket::Vector.new(Time.now)
+    # v2 = EnergyMarket::Vector.new(Time.zone.now)
+    # assert_equal(v1.start_time, v2.start_time)
   end
 
 
