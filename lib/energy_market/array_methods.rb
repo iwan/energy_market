@@ -25,7 +25,7 @@ module EnergyMarket
         count{|e| e>=0.0}
       end
 
-      def count_ngative
+      def count_negative
         count{|e| e<0.0}
       end
 

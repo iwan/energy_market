@@ -1,8 +1,8 @@
-require 'test/unit'
+require 'minitest/autorun'
 require 'energy_market'
 require 'time'
 
-class TestVector < Test::Unit::TestCase
+class TestVector < Minitest::Test
   
   def setup
     Time.zone = "Rome"
@@ -45,7 +45,7 @@ class TestVector < Test::Unit::TestCase
 
     Time.zone = "London"
     v2 = EnergyMarket::Vector.new("2013")
-    assert_not_equal(v2.start_time, v1.start_time)
+    refute_equal(v2.start_time, v1.start_time)
 
     Time.zone = "Rome"
     v1 = EnergyMarket::Vector.new
@@ -88,14 +88,13 @@ class TestVector < Test::Unit::TestCase
     assert_equal(v1.start_time, v2.start_time)
     v2 = EnergyMarket::Vector.new("2013-05-03 04:53:18", :zone => "Moscow")
     assert_equal(v1.start_time, v2.start_time)
-    puts Time.zone
   end
 
 
   def test_cloning
     v1 = EnergyMarket::Vector.new("2013-05-03 02:53:18", :zone => "Rome")
     v1.data(@array)
-    assert_not_same(v1.v, v1.clone.v)
+    refute_same(v1.v, v1.clone.v)
 
     v2 = EnergyMarket::Vector.new("2013-05-03 02:53:18", :zone => "Rome")
     v2.data(@array)
@@ -171,7 +170,7 @@ class TestVector < Test::Unit::TestCase
     assert_equal(-3.9-0.432, v.sum(:values => :non_positive))
     assert_equal(1.2+3.7-3.9+9.735-0.432, v.sum(:values => :all))
     assert_equal(1.2+3.7-3.9+9.735-0.432, v.sum(:values => :non_zero))
-    assert_raise ArgumentError do
+    assert_raises ArgumentError do
        v.sum(:values => :nope) 
     end
 
@@ -189,7 +188,7 @@ class TestVector < Test::Unit::TestCase
     assert_equal(3, v.count(:values => :non_positive))
     assert_equal(6, v.count(:values => :all))
     assert_equal(5, v.count(:values => :non_zero))
-    assert_raise ArgumentError do
+    assert_raises ArgumentError do
       v.count(:values => :nope) 
     end
 
@@ -212,7 +211,7 @@ class TestVector < Test::Unit::TestCase
     assert_close_to((0-4.3-0.2)/3.0, v.mean(:values => :non_positive))
     assert_close_to(3.0, v.mean(:values => :all))
     assert_close_to((10.2+3.4-4.3+8.9-0.2)/5.0, v.mean(:values => :non_zero))
-    assert_raise ArgumentError do
+    assert_raises ArgumentError do
       v.mean(:values => :nope) 
     end
 
@@ -309,7 +308,7 @@ class TestVector < Test::Unit::TestCase
     v1.align_with(v2)
     assert_equal(5, v1.size)
     assert_equal(v1.start_time, v2.start_time)
-    assert_not_equal(v1.end_time, v2.end_time)
+    refute_equal(v1.end_time, v2.end_time)
 
     # [1,2,3,4,5]
     # [1,2,3,4,5]
@@ -334,7 +333,7 @@ class TestVector < Test::Unit::TestCase
     # same start_time, different array size
     v1 = EnergyMarket::Vector.new("2013").data([1,2,3,4,5,6])
     v2 = EnergyMarket::Vector.new("2013").data([1,2,3,4,5])
-    assert_not_equal(v1.end_time, v2.end_time)
+    refute_equal(v1.end_time, v2.end_time)
     v1.align_with(v2)
     assert_equal(5, v1.size)
     assert_equal(v1.end_time, v2.end_time)
@@ -354,9 +353,9 @@ class TestVector < Test::Unit::TestCase
     a2 = [0, 0, nil]
     v2 = EnergyMarket::Vector.new("2013-01-01 02:00").data(a2)
 
-    assert_not_equal(v1.start_time, v2.start_time)
-    assert_not_equal(v1.end_time, v2.end_time)
-    assert_not_equal(v1.size, v2.size)
+    refute_equal(v1.start_time, v2.start_time)
+    refute_equal(v1.end_time, v2.end_time)
+    refute_equal(v1.size, v2.size)
 
     v1.align_with(v2)
     assert_equal(v1.start_time, v2.start_time)
@@ -372,13 +371,13 @@ class TestVector < Test::Unit::TestCase
     a2 = [1,2,3,4,5,6]
     v2 = EnergyMarket::Vector.new("2013-01-01 02:00").data(a2)
 
-    assert_not_equal(v1.start_time, v2.start_time)
-    assert_not_equal(v1.end_time, v2.end_time)
-    assert_not_equal(v1.size, v2.size)
+    refute_equal(v1.start_time, v2.start_time)
+    refute_equal(v1.end_time, v2.end_time)
+    refute_equal(v1.size, v2.size)
 
     v1.align_with(v2)
     assert_equal(v1.start_time, v2.start_time)
-    assert_not_equal(v1.end_time, v2.end_time)
+    refute_equal(v1.end_time, v2.end_time)
     assert_equal(1, v1.size)
 
     # different start_time (3)
@@ -390,13 +389,13 @@ class TestVector < Test::Unit::TestCase
     a2 = [0, 10.244321, 3.000001, -4.500001, -1.75326, nil]
     v2 = EnergyMarket::Vector.new("2013-01-01 00:00").data(a2)
 
-    assert_not_equal(v1.start_time, v2.start_time)
-    assert_not_equal(v1.end_time, v2.end_time)
-    assert_not_equal(v1.size, v2.size)
+    refute_equal(v1.start_time, v2.start_time)
+    refute_equal(v1.end_time, v2.end_time)
+    refute_equal(v1.size, v2.size)
 
     v1.align_with(v2)
-    assert_not_equal(v1.start_time, v2.start_time)
-    assert_not_equal(v1.end_time, v2.end_time)
+    refute_equal(v1.start_time, v2.start_time)
+    refute_equal(v1.end_time, v2.end_time)
     assert_equal(3, v1.size)
 
 

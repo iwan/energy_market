@@ -4,7 +4,6 @@
 %w(
     my_util
     version
-    energy_market
     vector
     values_array
     array_methods

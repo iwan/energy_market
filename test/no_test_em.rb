@@ -113,7 +113,7 @@ class TestOne < Test::Unit::TestCase
     elements_sum = @array.inject(0.0){|total, n| total + n }
     assert_equal(elements_sum, @vector.sum)
     assert_equal(elements_sum, @vector.sum(:values => :all))
-    assert_equal(elements_sum, @vector.sum(:values => :not_zero))
+    assert_equal(elements_sum, @vector.sum(:values => :non_zero))
 
     # i>0 elements 
     elements_sum = @array.inject(0.0){|total, n| total + (n>0 ? n : 0.0) }
@@ -121,7 +121,7 @@ class TestOne < Test::Unit::TestCase
 
     # i>=0 elements 
     elements_sum = @array.inject(0.0){|total, n| total + (n>=0 ? n : 0.0) }
-    assert_equal(elements_sum, @vector.sum(:values => :not_negative))
+    assert_equal(elements_sum, @vector.sum(:values => :non_negative))
 
     # i<0 elements 
     elements_sum = @array.inject(0.0){|total, n| total + (n<0 ? n : 0.0) }
@@ -129,7 +129,7 @@ class TestOne < Test::Unit::TestCase
 
     # i<=0 elements 
     elements_sum = @array.inject(0.0){|total, n| total + (n<=0 ? n : 0.0) }
-    assert_equal(elements_sum, @vector.sum(:values => :not_positive))
+    assert_equal(elements_sum, @vector.sum(:values => :non_positive))
 
     # i==0 elements 
     assert_equal(0.0, @vector.sum(:values => :zero))
@@ -148,7 +148,7 @@ class TestOne < Test::Unit::TestCase
 
     # i>=0 elements 
     elements_count = @array.inject(0){|total, n| total + (n>=0.0 ? 1 : 0) }
-    assert_equal(elements_count, @vector.count(:values => :not_negative))
+    assert_equal(elements_count, @vector.count(:values => :non_negative))
 
     # i<0 elements 
     elements_count = @array.inject(0){|total, n| total + (n<0.0 ? 1 : 0) }
@@ -156,7 +156,7 @@ class TestOne < Test::Unit::TestCase
 
     # i<=0 elements 
     elements_count = @array.inject(0){|total, n| total + (n<=0.0 ? 1 : 0) }
-    assert_equal(elements_count, @vector.count(:values => :not_positive))
+    assert_equal(elements_count, @vector.count(:values => :non_positive))
 
     # i==0 elements 
     elements_count = @array.inject(0){|total, n| total + (n==0.0 ? 1 : 0) }
@@ -164,7 +164,7 @@ class TestOne < Test::Unit::TestCase
 
     # i!=0 elements 
     elements_count = @array.inject(0){|total, n| total + (n!=0.0 ? 1 : 0) }
-    assert_equal(elements_count, @vector.count(:values => :not_zero))
+    assert_equal(elements_count, @vector.count(:values => :non_zero))
 
   end
 
@@ -180,7 +180,7 @@ class TestOne < Test::Unit::TestCase
 
     elements_sum = @array.inject(0.0){|total, n| total + (n>=0 ? n : 0.0) }
     elements_count = @array.inject(0){|total, n| total + (n>=0.0 ? 1 : 0) }
-    assert_equal(elements_sum/elements_count, @vector.mean(:values => :not_negative))
+    assert_equal(elements_sum/elements_count, @vector.mean(:values => :non_negative))
 
     elements_sum = @array.inject(0.0){|total, n| total + (n<0 ? n : 0.0) }
     elements_count = @array.inject(0){|total, n| total + (n<0.0 ? 1 : 0) }
@@ -188,13 +188,13 @@ class TestOne < Test::Unit::TestCase
 
     elements_sum = @array.inject(0.0){|total, n| total + (n<=0 ? n : 0.0) }
     elements_count = @array.inject(0){|total, n| total + (n<=0.0 ? 1 : 0) }
-    assert_equal(elements_sum/elements_count, @vector.mean(:values => :not_positive))
+    assert_equal(elements_sum/elements_count, @vector.mean(:values => :non_positive))
 
     assert_equal(0.0, @vector.mean(:values => :zero))
 
     elements_sum = @array.inject(0.0){|total, n| total + (n!=0 ? n : 0.0) }
     elements_count = @array.inject(0){|total, n| total + (n!=0.0 ? 1 : 0) }
-    assert_equal(elements_sum/elements_count, @vector.mean(:values => :not_zero))
+    assert_equal(elements_sum/elements_count, @vector.mean(:values => :non_zero))
 
 
     array = [2.0, 3.4, 5.8, 3.1, 0, 0.0]

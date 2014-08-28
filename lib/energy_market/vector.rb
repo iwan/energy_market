@@ -82,7 +82,7 @@ module EnergyMarket
     def count(options = {})
       if options[:values]
         raise ArgumentError, "Option not recognized" if !%w(positive negative non_positive non_negative non_zero zero all).include?(options[:values].to_s)
-        @v.send("count_"+options[:values])
+        @v.send("count_"+options[:values].to_s)
       else
         @v.count_all
       end
