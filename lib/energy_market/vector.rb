@@ -61,43 +61,30 @@ module EnergyMarket
     def sum(options = {})
       if options[:values]
         case options[:values]
-        when :positive, :not_negative
-          @v.inject(0.0){|total, n| total + (n>0.0 ? n : 0.0) }
-        when :negative, :not_positive
-          @v.inject(0.0){|total, n| total + (n<0.0 ? n : 0.0) }
+        when :positive, :non_negative
+          @v.sum_positive
+        when :negative, :non_positive
+          @v.sum_negative
         when :zero
           0.0
-        when :all, :not_zero
-          sum_all_elements  
+        when :all, :non_zero
+          @v.sum_all
         else
           raise ArgumentError, "Option not recognized"
         end
       else
-        sum_all_elements
+        @v.sum_all
       end
     end
 
 
     # Count the values
     def count(options = {})
-      return count_all_elements if !options[:values]
-      case options[:values]
-      when :positive
-        @v.count{|e| e>0.0}
-      when :negative
-        @v.count{|e| e<0.0}
-      when :not_positive
-        @v.count{|e| e<=0.0}
-      when :not_negative
-        @v.count{|e| e>=0.0}
-      when :not_zero
-        @v.count{|e| e!=0.0}
-      when :zero
-        @v.count{|e| e==0.0}
-      when :all
-        count_all_elements
+      if options[:values]
+        raise ArgumentError, "Option not recognized" if !%w(positive negative non_positive non_negative non_zero zero all).include?(options[:values].to_s)
+        @v.send("count_"+options[:values])
       else
-        raise ArgumentError, "Option not recognized"
+        @v.count_all
       end
     end
 
@@ -140,11 +127,11 @@ module EnergyMarket
           values = @v.collect{|v| v if v>0.0}
         when :negative
           values = @v.collect{|v| v if v<0.0}
-        when :not_positive
+        when :non_positive
           values = @v.collect{|v| v if v<=0.0}
-        when :not_negative
+        when :non_negative
           values = @v.collect{|v| v if v>=0.0}
-        when :not_zero
+        when :non_zero
           values = @v.collect{|v| v if v!=0.0}
         when :zero
           values = @v.collect{|v| v if v==0.0}
@@ -256,6 +243,18 @@ module EnergyMarket
     end
 
 
+    def group_by(interval)
+      raise ArgumentError, "interval not valid. Valid intervals are :hour, :day, :wday, :month" if ![:hour, :day, :wday, :month].include?(interval)
+      t = start_time
+      h = EnergyMarket::GroupHash.new{|h,k| h[k]=[]}
+      @v.each do |v|
+        h[t.send(interval)]<<v
+        t+=1.hour
+      end
+      h
+    end
+
+
     private
 
     def data_ary(start, length)
@@ -337,13 +336,6 @@ module EnergyMarket
     end
 
 
-    def sum_all_elements
-      @v.inject(0.0){|total, n| total + (n||0.0) }
-    end
-
-    def count_all_elements
-      @v.size
-    end
     
     def validate_unit(unit)
       raise ArgumentError, "Time unit is not valid" if !@@valid_units.include? unit

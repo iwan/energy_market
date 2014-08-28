@@ -166,11 +166,11 @@ class TestVector < Test::Unit::TestCase
     v = EnergyMarket::Vector.new("2013").data(a)
     assert_equal(1.2+3.7-3.9+9.735-0.432, v.sum)
     assert_equal(1.2+3.7+9.735, v.sum(:values => :positive))
-    assert_equal(1.2+3.7+9.735, v.sum(:values => :not_negative))
+    assert_equal(1.2+3.7+9.735, v.sum(:values => :non_negative))
     assert_equal(-3.9-0.432, v.sum(:values => :negative))
-    assert_equal(-3.9-0.432, v.sum(:values => :not_positive))
+    assert_equal(-3.9-0.432, v.sum(:values => :non_positive))
     assert_equal(1.2+3.7-3.9+9.735-0.432, v.sum(:values => :all))
-    assert_equal(1.2+3.7-3.9+9.735-0.432, v.sum(:values => :not_zero))
+    assert_equal(1.2+3.7-3.9+9.735-0.432, v.sum(:values => :non_zero))
     assert_raise ArgumentError do
        v.sum(:values => :nope) 
     end
@@ -184,11 +184,11 @@ class TestVector < Test::Unit::TestCase
     v = EnergyMarket::Vector.new("2013").data(a)
     assert_equal(a.size, v.count)
     assert_equal(3, v.count(:values => :positive))
-    assert_equal(4, v.count(:values => :not_negative))
+    assert_equal(4, v.count(:values => :non_negative))
     assert_equal(2, v.count(:values => :negative))
-    assert_equal(3, v.count(:values => :not_positive))
+    assert_equal(3, v.count(:values => :non_positive))
     assert_equal(6, v.count(:values => :all))
-    assert_equal(5, v.count(:values => :not_zero))
+    assert_equal(5, v.count(:values => :non_zero))
     assert_raise ArgumentError do
       v.count(:values => :nope) 
     end
@@ -207,11 +207,11 @@ class TestVector < Test::Unit::TestCase
     v = EnergyMarket::Vector.new("2013").data(a)
     assert_close_to(3.0, v.mean)
     assert_close_to((10.2+3.4+8.9)/3.0, v.mean(:values => :positive))
-    assert_close_to((0+10.2+3.4-4.3+8.9-0.2)/4.0, v.mean(:values => :not_negative))
+    assert_close_to((0+10.2+3.4-4.3+8.9-0.2)/4.0, v.mean(:values => :non_negative))
     assert_close_to((-4.3-0.2)/2.0, v.mean(:values => :negative))
-    assert_close_to((0-4.3-0.2)/3.0, v.mean(:values => :not_positive))
+    assert_close_to((0-4.3-0.2)/3.0, v.mean(:values => :non_positive))
     assert_close_to(3.0, v.mean(:values => :all))
-    assert_close_to((10.2+3.4-4.3+8.9-0.2)/5.0, v.mean(:values => :not_zero))
+    assert_close_to((10.2+3.4-4.3+8.9-0.2)/5.0, v.mean(:values => :non_zero))
     assert_raise ArgumentError do
       v.mean(:values => :nope) 
     end
@@ -593,5 +593,12 @@ class TestVector < Test::Unit::TestCase
     v2 = EnergyMarket::Vector.new("2013").data([4,0.5,3,9,0,7])
     assert_equal([1,0.5,3,4,0,6], v1.min(v2).v)
     assert_equal([4,2,3,9,5,7], v1.max(v2).v)
+  end
+
+
+  def test_group_by
+    a=Array.new(24){|i| i+1}
+    v = EnergyMarket::Vector.new("2013").data(a+a+a) 
+    v.group_by(:hour)
   end
 end

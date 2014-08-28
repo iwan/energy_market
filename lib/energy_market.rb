@@ -7,6 +7,10 @@
     energy_market
     vector
     values_array
+    array_methods
+    array
+    group_hash
+
   ).each { |file| require File.join(File.dirname(__FILE__), 'energy_market', file) }
 
 module EnergyMarket

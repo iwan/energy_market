@@ -1,10 +1,10 @@
-require_relative 'electricity_market'
+require_relative '../lib/energy_market'
 
 start_date = "2013-01-01"
 zone = "Rome"
 array = [3, 6, 7, -34, 5.5, 0, 8]
 
-v = EnergyMarket::Vector.new(start_date, zone).data(array)
+v = EnergyMarket::Vector.new(start_date, zone: zone).data(array)
 
 
 # puts v
@@ -39,7 +39,7 @@ EnergyMarket::Vector.new("2013-01-01 00:23:45")
 
 # All the following are the same:
 EnergyMarket::Vector.new("2013-01-01")
-EnergyMarket::Vector.new("2013-01-01", "Rome")
+EnergyMarket::Vector.new("2013-01-01", zone: "Rome")
 
 
 # ---- Insert data --------
@@ -51,15 +51,15 @@ v.until_the_end_of_the_year(1.0) # di default mette 0.0
 
 v = EnergyMarket::Vector.new("2013-01-01").data([2.3, 1.1, 4])
 
-EnergyMarket::Vector.new(start_date, zone).data([1.0, 2.0], :day)
+EnergyMarket::Vector.new(start_date, zone: zone).data([1.0, 2.0], :day)
 # tutte le ore del 1 gennaio valorizzate a 1.0, tutte quelle del 2 gennaio a 2.0. Nient'altro
 
-EnergyMarket::Vector.new(start_date, zone).data([1.0, 2.0], :month)
+EnergyMarket::Vector.new(start_date, zone: zone).data([1.0, 2.0], :month)
 # tutte le ore di gennaio valorizzate a 1.0, tutte quelle di febbraio a 2.0. Nient'altro
 
-EnergyMarket::Vector.new(start_date, zone).data([5.3], :year)
+EnergyMarket::Vector.new(start_date, zone: zone).data([5.3], :year)
 # oppure
-EnergyMarket::Vector.new(start_date, zone).data(5.3, :year)
+EnergyMarket::Vector.new(start_date, zone: zone).data(5.3, :year)
 
 
 
